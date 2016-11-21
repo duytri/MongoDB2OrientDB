@@ -1,14 +1,15 @@
 package main.scala
 
-import org.mongodb.scala.MongoClient
-import org.mongodb.scala.MongoDatabase
-import org.mongodb.scala.MongoCollection
-import org.mongodb.scala.bson.collection.mutable.Document
+import com.mongodb.MongoClient
+import com.mongodb.client.MongoDatabase
+import com.mongodb.client.MongoCollection
+import org.bson.Document
+import com.mongodb.Block
 
 object MongoDB2OrientDB {
   var mongoClient: MongoClient = null
 
-  def mongoDBConnect(): Unit = mongoClient = MongoClient()
+  def mongoDBConnect(): Unit = mongoClient = new MongoClient("localhost", 27017)
 
   def mongoDBClose(): Unit = if (mongoClient != null) mongoClient.close() else println("Not connected yet!")
 
@@ -24,7 +25,15 @@ object MongoDB2OrientDB {
 
   def main(args: Array[String]): Unit = {
     val cols = getCollection("allvnexpress", "all")
-    println(cols.count().toString())
+    //println(cols.find().first().toJson())
+    val result = cols.find()
+    result.forEach(new Block[Document] () {
+      @Override
+      def apply(document: Document): Unit = {
+        System.out.println(document);
+      }
+    })
+
     mongoDBClose()
   }
 }
